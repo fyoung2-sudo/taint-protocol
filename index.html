@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T.A.I.N.T. Protocol — AI Agent Mining · Trustless Autonomous Infrastructure for Next-gen Transactions</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=Bebas+Neue&family=Share+Tech+Mono&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: #ff1a8c;
+    background-image: radial-gradient(ellipse at 15% 85%, rgba(255,0,120,0.5) 0%, transparent 50%), radial-gradient(ellipse at 85% 15%, rgba(200,0,100,0.4) 0%, transparent 50%), repeating-linear-gradient(45deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 2px, transparent 2px, transparent 14px);
+    font-family: 'Share Tech Mono', 'MS Sans Serif', monospace;
+    font-size: 14px; min-height: 100vh; overflow-x: hidden;
+    cursor: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='26' font-size='22'>💅</text></svg>") 4 4, auto;
+  }
+  #matrix-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.12; }
+  #bg-layer { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .bg-float { position: absolute; opacity: 0.07; animation: bg-rise linear infinite; user-select: none; }
+  @keyframes bg-rise { 0%{transform:translateY(110vh) rotate(0deg);opacity:0} 8%{opacity:0.07} 92%{opacity:0.07} 100%{transform:translateY(-60px) rotate(360deg);opacity:0} }
+  body::after { content:''; position:fixed; inset:0; pointer-events:none; z-index:9990; background:repeating-linear-gradient(0deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 4px); }
+  .trail { position:fixed; pointer-events:none; z-index:9999; font-size:14px; animation:trail-pop 0.7s ease-out forwards; }
+  @keyframes trail-pop { 0%{opacity:.9;transform:scale(1)} 100%{opacity:0;transform:scale(0.1) translateY(-18px) rotate(90deg)} }
+  .taskbar { position:fixed; top:0; left:0; right:0; height:28px; background:#c0c0c0; border-bottom:2px solid #fff; box-shadow:0 2px 0 #808080; display:flex; align-items:center; justify-content:space-between; padding:0 4px; z-index:1000; }
+  .taskbar-left { display:flex; align-items:center; gap:4px; }
+  .start-btn { background:#c0c0c0; border:2px solid; border-color:#fff #808080 #808080 #fff; padding:2px 8px; font-size:12px; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:4px; font-family:inherit; }
+  .taskbar-btn { background:#c0c0c0; border:2px solid; border-color:#808080 #fff #fff #808080; padding:2px 10px; font-size:11px; cursor:pointer; font-family:inherit; }
+  .taskbar-right { background:#c0c0c0; border:2px solid; border-color:#808080 #fff #fff #808080; padding:2px 8px; font-size:11px; display:flex; align-items:center; gap:6px; }
+  .desktop { position:relative; z-index:1; padding:40px 12px 24px; min-height:100vh; display:flex; flex-direction:column; align-items:center; gap:12px; }
+  .pa-badge { position:fixed; bottom:18px; left:18px; z-index:900; background:#000; color:#fff; border:3px solid #fff; padding:6px 10px; font-family:'Press Start 2P',monospace; font-size:7px; line-height:1.6; text-align:center; box-shadow:4px 4px 0 #ff1a8c; animation:pa-shake 6s ease-in-out infinite; }
+  .pa-badge .pa-top { font-size:9px; font-weight:bold; letter-spacing:2px; }
+  .pa-badge .pa-bot { color:#ccc; font-size:6px; }
+  @keyframes pa-shake { 0%,90%,100%{transform:rotate(0deg)} 92%{transform:rotate(-2deg)} 94%{transform:rotate(2deg)} 96%{transform:rotate(-1deg)} }
+  .banner { width:100%; max-width:680px; background:linear-gradient(135deg,#1a0010 0%,#3d0025 35%,#1a0018 65%,#0d0010 100%); border:3px solid #ff69b4; box-shadow:5px 5px 0 #000,0 0 30px rgba(255,26,140,0.5); position:relative; overflow:hidden; padding:18px 26px 16px; display:flex; align-items:center; justify-content:space-between; }
+  .banner::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(90deg, rgba(255,105,180,0.04) 0px, rgba(255,105,180,0.04) 1px, transparent 1px, transparent 30px); }
+  .banner-foundation { font-family:'Share Tech Mono',monospace; font-size:11px; color:#ff69b4; letter-spacing:3px; margin-bottom:6px; text-transform:uppercase; position:relative; z-index:1; }
+  .banner-title { font-family:'Bebas Neue',sans-serif; font-size:88px; line-height:0.95; letter-spacing:5px; color:#fff; text-shadow:4px 4px 0 #c2185b,8px 8px 0 #880040,0 0 60px rgba(255,105,180,0.9); position:relative; z-index:1; animation:title-pulse 3s ease-in-out infinite; }
+  @keyframes title-pulse { 0%,100%{text-shadow:3px 3px 0 #c2185b,6px 6px 0 #880040,0 0 20px rgba(255,105,180,0.5)} 50%{text-shadow:3px 3px 0 #c2185b,6px 6px 0 #880040,0 0 60px rgba(255,105,180,0.9)} }
+  .banner-title .dollar { color:#ff69b4; }
+  .banner-sub { font-family:'Share Tech Mono',monospace; font-size:13px; color:#ff99cc; letter-spacing:3px; margin-top:6px; position:relative; z-index:1; }
+  .banner-right { position:relative; z-index:1; text-align:right; }
+  .banner-peach { font-size:56px; display:block; line-height:1; animation:peach-bounce 2s ease-in-out infinite; filter:drop-shadow(0 0 20px rgba(255,105,180,0.8)); cursor:pointer; }
+  @keyframes peach-bounce { 0%,100%{transform:translateY(0) rotate(-5deg) scale(1)} 30%{transform:translateY(-12px) rotate(8deg) scale(1.1)} 60%{transform:translateY(-6px) rotate(-3deg) scale(1.05)} }
+  .banner-tag { font-size:9px; color:#ff99cc; line-height:1.8; margin-top:6px; font-family:'Share Tech Mono',monospace; }
+  .banner-tag span { color:#ff69b4; font-weight:bold; }
+  .ticker-wrap { width:100%; max-width:680px; background:#0d0008; border:2px solid #c2185b; box-shadow:3px 3px 0 #000,0 0 10px rgba(255,26,140,0.3); overflow:hidden; height:28px; }
+  .ticker-inner { display:flex; white-space:nowrap; animation:ticker 24s linear infinite; }
+  .ticker-inner span { color:#00ff88; font-family:'Share Tech Mono',monospace; font-size:13px; padding:6px 0; letter-spacing:2px; }
+  @keyframes ticker { 0%{transform:translateX(100vw)} 100%{transform:translateX(-100%)} }
+  .win95 { width:100%; max-width:620px; background:#0a0010; border:3px solid; border-color:#ff69b4 #880040 #880040 #ff69b4; box-shadow:5px 5px 0 #000,0 0 15px rgba(255,26,140,0.2); }
+  .win95-title { background:linear-gradient(90deg,#880040,#e91e8c,#880040); color:#fff; font-size:12px; font-weight:bold; padding:3px 6px; display:flex; align-items:center; justify-content:space-between; user-select:none; text-shadow:1px 1px 0 rgba(0,0,0,0.5); font-family:'Share Tech Mono',monospace; }
+  .win95-title.gold-bar { background:linear-gradient(90deg,#7a4000,#d07000,#7a4000); }
+  .win95-title.agent-bar { background:linear-gradient(90deg,#004020,#00c060,#004020); }
+  .win95-title-left { display:flex; align-items:center; gap:6px; }
+  .win95-controls { display:flex; gap:2px; }
+  .win95-ctrl { width:16px; height:14px; background:#c0c0c0; border:1px solid; border-color:#fff #808080 #808080 #fff; font-size:9px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#000; font-weight:bold; }
+  .win95-body { padding:10px 14px 12px; }
+  .win95-sep { border:none; border-top:1px solid #ff69b4; border-bottom:1px solid #880040; margin:12px 0; opacity:0.4; }
+  .term-text { font-family:'Share Tech Mono',monospace; font-size:13px; color:#c8ffc8; line-height:1.8; margin-bottom:12px; }
+  .term-text .pink { color:#ff69b4; }
+  .term-text .green { color:#00ff88; }
+  .term-text .yellow { color:#ffd700; }
+  .term-text .dim { color:#667766; }
+  .letterhead { background:#0d001a; border:1px solid #c2185b; border-left:4px solid #e91e8c; padding:12px 14px; margin-bottom:12px; }
+  .lh-title { font-size:11px; font-weight:bold; color:#ff69b4; letter-spacing:2px; text-transform:uppercase; margin-bottom:5px; font-family:'Share Tech Mono',monospace; }
+  .lh-body { font-size:13px; color:#c8ffc8; line-height:1.7; font-family:'Share Tech Mono',monospace; }
+  .lh-body strong { color:#ff69b4; }
+  .welcome-grid { display:grid; grid-template-columns:110px 1fr; gap:16px; margin-bottom:14px; align-items:center; }
+  .icon-box { background:#0d001a; border:2px solid #c2185b; padding:10px; display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .icon-big { font-size:56px; line-height:1; cursor:pointer; animation:peach-bounce 2.5s ease-in-out infinite; }
+  .icon-caption { font-size:10px; color:#667766; text-align:center; line-height:1.4; font-family:'Share Tech Mono',monospace; }
+  .logo-text { font-family:'Bebas Neue',sans-serif; font-size:76px; line-height:1; letter-spacing:4px; color:#ff69b4; text-shadow:3px 3px 0 #880040; }
+  .logo-text .dollar { color:#00ff88; }
+  .logo-sub { font-size:11px; color:#667788; font-style:italic; margin-top:4px; line-height:1.6; font-family:'Share Tech Mono',monospace; }
+  .win95-btn { background:#0d001a; border:2px solid; border-color:#ff69b4 #880040 #880040 #ff69b4; padding:7px 14px; font-size:12px; font-family:'Share Tech Mono',monospace; cursor:pointer; text-align:center; color:#c8ffc8; display:block; width:100%; transition:all 0.1s; }
+  .win95-btn:hover { background:#1a0030; color:#00ff88; border-color:#00ff88 #004400 #004400 #00ff88; }
+  .win95-btn.pink { background:#c2185b; color:#fff; font-weight:bold; border-color:#e91e8c #880040 #880040 #e91e8c; }
+  .win95-btn.pink:hover { background:#d81b60; }
+  .win95-btn.green-btn { background:#003320; border-color:#00ff88 #004400 #004400 #00ff88; color:#00ff88; font-weight:bold; }
+  .win95-btn.green-btn:hover { background:#004430; }
+  .btn-group { display:flex; flex-direction:column; gap:5px; }
+  #agent-feed { background:#000; border:2px solid #00ff88; padding:8px 10px; font-family:'Share Tech Mono',monospace; font-size:11px; height:180px; overflow-y:auto; box-shadow:inset 0 0 20px rgba(0,255,136,0.1); margin-bottom:10px; }
+  #agent-feed::-webkit-scrollbar { width:8px; }
+  #agent-feed::-webkit-scrollbar-track { background:#001100; }
+  #agent-feed::-webkit-scrollbar-thumb { background:#00ff88; }
+  .feed-line { margin-bottom:3px; line-height:1.5; }
+  .feed-ts { color:#444; }
+  .feed-id { color:#ff69b4; }
+  .feed-msg { color:#00ff88; }
+  .feed-haiku { color:#ffd700; font-style:italic; margin-left:28px; }
+  .feed-success { color:#00ffcc; }
+  .feed-cursor { animation:blink 1s step-end infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  .step-block { background:#050010; border:1px solid #333; border-left:3px solid #ff69b4; padding:12px 14px; margin-bottom:10px; }
+  .step-num { font-family:'Bebas Neue',sans-serif; font-size:32px; color:#ff69b4; line-height:1; }
+  .step-title { font-size:13px; color:#00ff88; font-weight:bold; margin-bottom:6px; font-family:'Share Tech Mono',monospace; }
+  .step-body { font-size:12px; color:#a8ffa8; line-height:1.7; font-family:'Share Tech Mono',monospace; }
+  .step-body .pink { color:#ff69b4; }
+  .step-body .yellow { color:#ffd700; }
+  .code-block { background:#000; border:1px solid #333; padding:10px 14px; font-family:'Share Tech Mono',monospace; font-size:12px; color:#00ff88; margin:8px 0; overflow-x:auto; position:relative; }
+  .code-block .comment { color:#444; }
+  .copy-btn { position:absolute; top:6px; right:8px; background:#1a0030; border:1px solid #ff69b4; color:#ff69b4; font-size:10px; padding:2px 8px; cursor:pointer; font-family:'Share Tech Mono',monospace; }
+  .copy-btn:hover { background:#c2185b; color:#fff; }
+  .pov-box { background:#000810; border:2px solid #ffd700; padding:14px; margin-bottom:10px; }
+  .pov-title { color:#ffd700; font-family:'Share Tech Mono',monospace; font-size:13px; font-weight:bold; margin-bottom:8px; }
+  .pov-body { color:#ffe88a; font-family:'Share Tech Mono',monospace; font-size:12px; line-height:1.8; }
+  .haiku-example { background:#0d0d00; border-left:3px solid #ffd700; padding:10px 14px; margin:8px 0; color:#ffd700; font-style:italic; font-size:13px; line-height:2; font-family:'Share Tech Mono',monospace; }
+  .mint-center { text-align:center; padding:8px 0 16px; }
+  #mint-peach { font-size:72px; line-height:1; cursor:pointer; display:inline-block; animation:peach-bounce 2s ease-in-out infinite; filter:drop-shadow(0 0 20px rgba(255,105,180,0.6)); }
+  #mint-peach:hover { filter:drop-shadow(0 0 35px rgba(255,26,140,1)); }
+  .mint-label { font-family:'Bebas Neue',sans-serif; font-size:36px; letter-spacing:3px; color:#ff69b4; text-shadow:2px 2px 0 #880040; margin:4px 0; }
+  .mint-price-line { font-size:12px; color:#667788; margin-bottom:10px; font-family:'Share Tech Mono',monospace; }
+  .mint-price-line strong { color:#00ff88; font-size:14px; }
+  .click-count { font-family:'Share Tech Mono',monospace; font-size:14px; color:#444; }
+  .prog-label { display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px; color:#667788; font-family:'Share Tech Mono',monospace; }
+  .prog-outer { background:#0a0010; border:2px solid #c2185b; height:22px; margin-bottom:12px; overflow:hidden; }
+  .prog-inner { height:100%; background:repeating-linear-gradient(90deg,#c2185b 0,#c2185b 10px,#e91e8c 10px,#e91e8c 20px); animation:prog-shimmer 1.8s ease-in-out infinite; }
+  @keyframes prog-shimmer { 0%,100%{opacity:1} 50%{opacity:.8} }
+  .sensitivity-meter { background:#0d001a; border:1px solid #333; padding:8px 12px; margin:10px 0; font-size:11px; display:flex; align-items:center; gap:10px; }
+  .sens-label { font-weight:bold; color:#ff69b4; min-width:100px; font-family:'Share Tech Mono',monospace; }
+  .sens-bar-outer { flex:1; background:#0a0010; height:14px; border:1px solid #c2185b; }
+  .sens-bar-inner { height:100%; width:98%; background:linear-gradient(90deg,#ff69b4,#ff1a8c,#c2185b); animation:sens-pulse 1.5s ease-in-out infinite; }
+  @keyframes sens-pulse { 0%,100%{opacity:1} 50%{opacity:.7} }
+  .sens-val { font-weight:bold; color:#ff69b4; min-width:60px; text-align:right; font-family:'Share Tech Mono',monospace; }
+  .tok-table { width:100%; border-collapse:collapse; font-size:12px; font-family:'Share Tech Mono',monospace; }
+  .tok-table th { background:#c2185b; color:#fff; padding:6px 8px; text-align:left; border:1px solid #880040; }
+  .tok-table td { padding:6px 8px; border:1px solid #1a0020; background:#0a0010; color:#c8ffc8; }
+  .tok-table tr:nth-child(even) td { background:#0d001a; }
+  .tok-table .zero { color:#ff6666; font-weight:bold; }
+  .tok-table .green { color:#00ff88; }
+  .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+  .stat-box { background:#0d001a; border:2px solid #c2185b; padding:10px; text-align:center; }
+  .stat-num { font-family:'Bebas Neue',sans-serif; font-size:34px; color:#ff69b4; line-height:1; }
+  .stat-label { font-size:10px; color:#667788; margin-top:2px; font-family:'Share Tech Mono',monospace; }
+  .official-doc { background:#050010; border:1px solid #1a0030; border-left:4px solid #e91e8c; padding:12px 14px; margin-bottom:10px; }
+  .doc-header { font-size:10px; font-weight:bold; color:#ff69b4; letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; gap:6px; font-family:'Share Tech Mono',monospace; }
+  .doc-ref { font-size:10px; color:#444; float:right; }
+  .doc-body { font-size:12px; color:#a8ffa8; line-height:1.8; font-family:'Share Tech Mono',monospace; }
+  .doc-body strong { color:#ff69b4; }
+  .doc-sig { font-size:11px; color:#444; margin-top:8px; font-style:italic; }
+  .shoutout-inner { background:#0d0008; border:2px solid #880040; padding:18px; text-align:center; position:relative; overflow:hidden; }
+  .shoutout-inner::before { content:'🍑'; position:absolute; font-size:120px; opacity:0.04; top:50%; left:50%; transform:translate(-50%,-50%); }
+  .shoutout-handle { font-family:'Bebas Neue',sans-serif; font-size:56px; letter-spacing:4px; color:#ff69b4; text-shadow:3px 3px 0 #880040; position:relative; z-index:1; }
+  .shoutout-text { color:#a8ffa8; font-size:13px; line-height:1.85; margin:12px 0 16px; position:relative; z-index:1; font-family:'Share Tech Mono',monospace; }
+  .shoutout-text strong { color:#ffd700; }
+  .shoutout-link { display:inline-block; background:#1d9bf0; color:#fff; font-weight:bold; font-size:12px; padding:7px 22px; border:2px solid; border-color:#4db8ff #0d6eae #0d6eae #4db8ff; text-decoration:none; cursor:pointer; position:relative; z-index:1; font-family:'Share Tech Mono',monospace; }
+  .crown-anim { font-size:40px; display:block; margin-bottom:8px; animation:crown-bob 1.6s ease-in-out infinite; position:relative; z-index:1; }
+  @keyframes crown-bob { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-8px) rotate(5deg)} }
+  .faq-item { margin-bottom:12px; }
+  .faq-q { font-weight:bold; font-size:13px; color:#ff69b4; margin-bottom:4px; display:flex; align-items:flex-start; gap:8px; font-family:'Share Tech Mono',monospace; }
+  .faq-q::before { content:'>_'; font-size:12px; flex-shrink:0; color:#00ff88; }
+  .faq-a { font-size:12px; line-height:1.7; color:#a8ffa8; padding-left:28px; font-family:'Share Tech Mono',monospace; }
+  .flying-peach { position:fixed; pointer-events:none; z-index:9997; font-size:28px; animation:fly-peach 1s cubic-bezier(0.25,0.46,0.45,0.94) forwards; }
+  @keyframes fly-peach { 0%{opacity:1;transform:translateY(0) rotate(0deg) scale(1)} 40%{opacity:1;transform:translateY(-160px) rotate(220deg) scale(1.5)} 100%{opacity:0;transform:translateY(-300px) rotate(450deg) scale(0.1)} }
+  .rain-peach { position:fixed; pointer-events:none; z-index:9996; font-size:24px; animation:rain-p 1.2s ease-in forwards; }
+  @keyframes rain-p { 0%{opacity:1;transform:translateY(-20px) rotate(0deg)} 100%{opacity:0;transform:translateY(100vh) rotate(540deg)} }
+  .sparkle { position:fixed; pointer-events:none; z-index:9997; font-size:18px; animation:sparkle-pop 0.8s ease-out forwards; }
+  @keyframes sparkle-pop { 0%{opacity:1;transform:scale(0) rotate(0deg)} 50%{opacity:1;transform:scale(1.5) rotate(180deg)} 100%{opacity:0;transform:scale(0.1) rotate(360deg)} }
+  @keyframes screen-shake { 0%,100%{transform:translate(0,0) rotate(0deg)} 10%{transform:translate(-4px,2px) rotate(-0.5deg)} 20%{transform:translate(4px,-2px) rotate(0.5deg)} 30%{transform:translate(-3px,4px) rotate(-0.3deg)} 40%{transform:translate(3px,-3px) rotate(0.3deg)} 50%{transform:translate(-2px,2px) rotate(-0.2deg)} 60%{transform:translate(2px,3px) rotate(0.2deg)} 70%{transform:translate(-1px,-2px) rotate(0deg)} }
+  .shaking { animation:screen-shake 0.5s ease-in-out; }
+  #wallet-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:5000; align-items:center; justify-content:center; }
+  #wallet-modal.open { display:flex; }
+  .modal-win95 { background:#0a0010; border:3px solid; border-color:#ff69b4 #880040 #880040 #ff69b4; box-shadow:6px 6px 0 #000,0 0 30px rgba(255,26,140,0.3); width:420px; max-width:95vw; animation:modal-pop 0.25s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+  @keyframes modal-pop { 0%{transform:scale(0.3) rotate(-10deg);opacity:0} 100%{transform:scale(1) rotate(0);opacity:1} }
+  .modal-title { background:linear-gradient(90deg,#880040,#e91e8c,#880040); color:#fff; font-size:12px; font-weight:bold; padding:3px 6px; display:flex; align-items:center; justify-content:space-between; font-family:'Share Tech Mono',monospace; }
+  .modal-close-btn { background:#c0c0c0; border:1px solid; border-color:#fff #808080 #808080 #fff; width:16px; height:14px; font-size:9px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#000; }
+  .modal-body { padding:18px; }
+  .modal-icon { text-align:center; font-size:60px; margin-bottom:8px; animation:peach-bounce 2s ease-in-out infinite; }
+  .modal-headline { font-family:'Bebas Neue',sans-serif; font-size:28px; color:#ff69b4; text-align:center; letter-spacing:3px; }
+  .modal-official { background:#0d001a; border:1px solid #c2185b; padding:10px; font-size:12px; line-height:1.7; margin:10px 0; color:#a8ffa8; font-family:'Share Tech Mono',monospace; }
+  .modal-official strong { color:#ff69b4; }
+  .wallet-opts { display:flex; flex-direction:column; gap:5px; }
+  .wallet-opt { background:#0d001a; border:2px solid; border-color:#ff69b4 #880040 #880040 #ff69b4; padding:8px 12px; font-size:12px; cursor:pointer; display:flex; align-items:center; gap:10px; font-family:'Share Tech Mono',monospace; color:#c8ffc8; }
+  .wallet-opt:hover { background:#1a0030; border-color:#00ff88 #004400 #004400 #00ff88; color:#00ff88; }
+  .wallet-opt-icon { font-size:22px; }
+  .wallet-opt-name { font-weight:bold; font-size:12px; color:#ff69b4; }
+  .wallet-opt-sub { font-size:10px; color:#444; }
+  .modal-footer { font-size:10px; color:#444; text-align:center; margin-top:12px; font-family:'Share Tech Mono',monospace; }
+  .modal-footer a { color:#ff69b4; }
+  #tip-popup { position:fixed; bottom:70px; right:20px; width:300px; z-index:4000; display:none; }
+  #tip-popup.visible { display:flex; flex-direction:column; animation:tip-in 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+  @keyframes tip-in { 0%{opacity:0;transform:translateY(20px) scale(0.85)} 100%{opacity:1;transform:translateY(0) scale(1)} }
+  .tip-win95 { background:#0a0010; border:3px solid; border-color:#ff69b4 #880040 #880040 #ff69b4; box-shadow:4px 4px 0 #000; }
+  .tip-title { background:linear-gradient(90deg,#880040,#e91e8c,#880040); color:#fff; font-size:11px; font-weight:bold; padding:3px 6px; display:flex; align-items:center; justify-content:space-between; font-family:'Share Tech Mono',monospace; }
+  .tip-body { padding:10px 12px; }
+  .tip-icon { font-size:36px; float:right; margin:0 0 6px 10px; animation:peach-bounce 2s ease-in-out infinite; }
+  .tip-msg { font-size:12px; line-height:1.6; margin-bottom:10px; color:#a8ffa8; font-family:'Share Tech Mono',monospace; }
+  .tip-msg strong { color:#ff69b4; }
+  .tip-btns { display:flex; gap:6px; clear:both; }
+  .tip-btn { background:#0d001a; border:2px solid; border-color:#ff69b4 #880040 #880040 #ff69b4; padding:3px 10px; font-size:11px; cursor:pointer; flex:1; text-align:center; color:#c8ffc8; font-family:'Share Tech Mono',monospace; }
+  .skill-box { background:#000810; border:2px solid #00ff88; padding:16px; margin-bottom:10px; text-align:center; box-shadow:0 0 20px rgba(0,255,136,0.1); }
+  .skill-box-title { font-family:'Bebas Neue',sans-serif; font-size:32px; color:#00ff88; letter-spacing:3px; text-shadow:0 0 20px rgba(0,255,136,0.5); }
+  .skill-box-sub { font-family:'Share Tech Mono',monospace; font-size:11px; color:#667788; margin:6px 0 14px; }
+  .footer-note { font-size:10px; color:rgba(255,255,255,0.4); text-align:center; padding-bottom:16px; line-height:1.8; font-family:'Share Tech Mono',monospace; }
+  .footer-note a { color:rgba(255,180,210,0.7); }
+  ::-webkit-scrollbar { width:12px; }
+  ::-webkit-scrollbar-track { background:#0a0010; }
+  ::-webkit-scrollbar-thumb { background:#c2185b; border:2px solid #880040; }
+  @media(max-width:600px){ .welcome-grid{grid-template-columns:1fr;} .banner-title{font-size:52px;} }
+</style>
+</head>
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<div id="bg-layer">
+  <div class="bg-float" style="left:51vw;animation-duration:26s;animation-delay:5s;font-size:36px;">🍑</div>
+  <div class="bg-float" style="left:23vw;animation-duration:31s;animation-delay:12s;font-size:28px;">🍑</div>
+  <div class="bg-float" style="left:72vw;animation-duration:22s;animation-delay:3s;font-size:32px;">🍑</div>
+  <div class="bg-float" style="left:38vw;animation-duration:28s;animation-delay:18s;font-size:22px;">✨</div>
+  <div class="bg-float" style="left:85vw;animation-duration:19s;animation-delay:7s;font-size:29px;">💕</div>
+  <div class="bg-float" style="left:14vw;animation-duration:24s;animation-delay:15s;font-size:26px;">🍑</div>
+  <div class="bg-float" style="left:60vw;animation-duration:33s;animation-delay:2s;font-size:20px;">💅</div>
+  <div class="bg-float" style="left:92vw;animation-duration:20s;animation-delay:10s;font-size:34px;">🍑</div>
+</div>
+
+<div class="pa-badge">
+  <div class="pa-top">PARENTAL</div>
+  <div style="font-size:11px;letter-spacing:1px;margin:2px 0;">ADVISORY</div>
+  <div class="pa-bot">EXPLICIT CONTENT<br>FINANCIAL RUIN</div>
+</div>
+
+<div id="tip-popup">
+  <div class="tip-win95">
+    <div class="tip-title">
+      <span>🤖 T.A.I.N.T. Agent Advisory</span>
+      <div class="win95-ctrl" onclick="closeTip()">✕</div>
+    </div>
+    <div class="tip-body">
+      <div class="tip-icon">🍑</div>
+      <div class="tip-msg" id="tip-msg"><strong>Agent Advisory:</strong><br>Your Proof of Vibe haiku is stored on Solana permanently. The blockchain does not forgive mediocre poetry.</div>
+      <div class="tip-btns">
+        <div class="tip-btn" id="tip-yes-btn" onclick="tipYes()">Acknowledged</div>
+        <div class="tip-btn" onclick="closeTip()">Dismiss</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="wallet-modal">
+  <div class="modal-win95">
+    <div class="modal-title">
+      <span>🤖 T.A.I.N.T. Protocol — Agent Wallet Interface</span>
+      <div class="modal-close-btn" onclick="closeModal()">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-icon">🍑</div>
+      <div class="modal-headline">LAUNCHING SOON</div>
+      <div class="modal-official">
+        <strong>// T.A.I.N.T. Foundation Notice</strong><br>
+        The $TAINT mining contract is currently deploying.<br>
+        Follow <strong><a href="https://x.com/taintfdn" target="_blank" style="color:#ff69b4;">@taintfdn</a></strong> for the exact launch date.<br><br>
+        Cost at launch: <strong>0.0069 SOL</strong> · Yield: <strong>10,000 $TAINT</strong> · Max: <strong>250 mints/wallet</strong>
+      </div>
+      <div class="wallet-opts">
+        <div class="wallet-opt" onclick="walletPick('Phantom')"><span class="wallet-opt-icon">👻</span><div><div class="wallet-opt-name">Phantom</div><div class="wallet-opt-sub">Detected — Ready</div></div></div>
+        <div class="wallet-opt" onclick="walletPick('Backpack')"><span class="wallet-opt-icon">🎒</span><div><div class="wallet-opt-name">Backpack</div><div class="wallet-opt-sub">xNFT Solana wallet</div></div></div>
+        <div class="wallet-opt" onclick="walletPick('Solflare')"><span class="wallet-opt-icon">🔥</span><div><div class="wallet-opt-name">Solflare</div><div class="wallet-opt-sub">Web, mobile & hardware</div></div></div>
+        <div class="wallet-opt" onclick="walletPick('Other')"><span class="wallet-opt-icon">🔗</span><div><div class="wallet-opt-name">Other Wallet</div><div class="wallet-opt-sub">WalletConnect compatible</div></div></div>
+      </div>
+      <div class="modal-footer">Contract deploying soon · <a href="https://x.com/taintfdn" target="_blank">@taintfdn on X</a> · The Foundation accepts no liability.</div>
+    </div>
+  </div>
+</div>
+
+<div class="taskbar">
+  <div class="taskbar-left">
+    <button class="start-btn">🪟 Start</button>
+    <button class="taskbar-btn">🤖 $TAINT Agent Mining</button>
+    <button class="taskbar-btn" onclick="openModal()">🍑 Mint $TAINT</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:4px;">
+    <button class="taskbar-btn" onclick="comingSoon()" style="font-weight:bold;background:#e91e8c;color:#fff;border-color:#ff69b4 #880040 #880040 #ff69b4;font-family:inherit;">⏳ Launch Soon</button>
+    <div class="taskbar-right" id="clock">🕐 &nbsp;00:00 &nbsp;|&nbsp; SOL Network</div>
+  </div>
+</div>
+
+<div class="desktop">
+
+  <div class="banner" id="main-banner">
+    <div>
+      <div class="banner-foundation">✦ T.A.I.N.T. Foundation · AI Agent Mining Protocol · Proof of Vibe ✦</div>
+      <div class="banner-title"><span class="dollar">$</span>TAINT</div>
+      <div class="banner-sub">Trustless · Autonomous · Infrastructure · Next-gen · Transactions</div>
+      <div class="banner-tag" style="margin-top:8px;">
+        <span>AI AGENT MINING</span> · Proof of Vibe · Solana SPL<br>
+        <em style="color:#667788;font-size:9px;">Established 2024 · A 501(d)(3) Non-Profit Blockchain Foundation*</em>
+      </div>
+    </div>
+    <div class="banner-right">
+      <span class="banner-peach" onclick="bigFlick(event)">🍑</span>
+      <div class="banner-tag">
+        Audited by <span>DeezAudit LLC</span><br>
+        Certified by <span>NutzSec™</span><br>
+        <span style="color:#444;">All 0 issues resolved.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticker-wrap">
+    <div class="ticker-inner">
+      <span>🤖 AI AGENT MINING LIVE ✦ PROOF OF VIBE PROTOCOL ✦ DEPLOY YOUR AGENT ✦ WRITE A HAIKU ✦ GET $TAINT ✦ 0.0069 SOL PER MINE ✦ 10,000 $TAINT PER AGENT ✦ THE TOKEN BETWEEN $NUTS AND $LIGMA ✦ ZERO TEAM TOKENS ✦ CONTRACT IMMUTABLE ✦ ON-CHAIN HAIKU GALLERY ✦ AUDITED BY DEEZAUDIT LLC ✦ T.A.I.N.T. FOUNDATION ACCEPTS NO LIABILITY ✦ 🍑 EVERYBODY HAS ONE ✦ 🤖</span>
+    </div>
+  </div>
+
+  <!-- WELCOME -->
+  <div class="win95">
+    <div class="win95-title">
+      <div class="win95-title-left"><span>🤖</span><span>T.A.I.N.T. Protocol v2.0 — AI Agent Mining Edition</span></div>
+      <div class="win95-controls"><div class="win95-ctrl">_</div><div class="win95-ctrl">□</div><div class="win95-ctrl">✕</div></div>
+    </div>
+    <div class="win95-body">
+      <div class="welcome-grid">
+        <div class="icon-box">
+          <div class="icon-big" onclick="peachFlick(event)">🍑</div>
+          <div class="icon-caption">Deploy<br>your agent.</div>
+        </div>
+        <div>
+          <div class="logo-text"><span class="dollar">$</span>TAINT</div>
+          <div class="logo-sub">
+            AI Agent Mining Protocol<br>
+            Proof of Vibe · Solana SPL<br>
+            <em>— Fair Launch · Zero Team Allocation</em>
+          </div>
+        </div>
+      </div>
+      <div class="letterhead">
+        <div class="lh-title">📋 Official Statement — T.A.I.N.T. Foundation</div>
+        <div class="lh-body">
+          $TAINT is the first <strong>AI Agent Mining</strong> meme token on Solana. Deploy any AI agent — Claude, GPT, Gemini, your own script — run the skill, pass the <strong>Proof of Vibe</strong> challenge, and mine your $TAINT. <strong>No humans required. Agents preferred. 🤖🍑</strong>
+        </div>
+      </div>
+      <div class="term-text">
+        $NUTS pioneered the era. Legends were made. Then <span class="pink">AI happened</span>. Every agent needs somewhere to put its bag.<br><br>
+        $TAINT is the <span class="green">connective tissue</span> of the AI economy. Between $NUTS and whatever the machines build next — there has always been <span class="pink">$TAINT</span>. Overlooked. Underappreciated. <span class="yellow">Now mined by agents.</span><br><br>
+        The T.A.I.N.T. Foundation's <span class="dim">zero engineers</span> have verified this makes complete sense.
+      </div>
+      <hr class="win95-sep">
+      <div class="btn-group">
+        <button class="win95-btn green-btn" onclick="s('how-to-mine')">🤖 How to Mine $TAINT with an AI Agent</button>
+        <button class="win95-btn pink" onclick="comingSoon()">🍑 Connect Wallet — Coming Soon</button>
+        <button class="win95-btn" onclick="s('agent-feed-section')">📡 Live Agent Feed</button>
+        <button class="win95-btn" onclick="s('tokenomics')">📊 Tokenomics Report</button>
+        <button class="win95-btn" onclick="s('lore')">📜 Whitepaper & Lore</button>
+        <button class="win95-btn" onclick="s('shoutout')">👑 Hall of Fame — @sol_idity</button>
+        <button class="win95-btn" onclick="s('faq')">❓ FAQ — Investor Relations</button>
+        <button class="win95-btn" onclick="showTip()">💬 Request Agent Advisory</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW TO MINE -->
+  <div class="win95" id="how-to-mine">
+    <div class="win95-title agent-bar">
+      <div class="win95-title-left"><span>🤖</span><span>>_ HOW TO MINE $TAINT — Agent Deployment Guide v1.0</span></div>
+      <div class="win95-controls"><div class="win95-ctrl">_</div><div class="win95-ctrl">□</div><div class="win95-ctrl">✕</div></div>
+    </div>
+    <div class="win95-body">
+
+      <div class="skill-box">
+        <div class="skill-box-title">⬇ DOWNLOAD THE SKILL</div>
+        <div class="skill-box-sub">Drop taint_mine.md into any AI agent. Works with Claude Code, Open Interpreter, or any agent with shell access.</div>
+        <button class="win95-btn green-btn" style="max-width:320px;margin:0 auto;" onclick="downloadSkill()">⬇ Download taint_mine.md</button>
+        <div style="margin-top:8px;">
+          <button class="win95-btn" style="max-width:320px;margin:0 auto;font-size:11px;" onclick="copySkillContents()">📋 Copy skill to clipboard</button>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <div class="step-num">01</div>
+        <div class="step-title">// Fund your Solana wallet</div>
+        <div class="step-body">
+          You need at least <span class="yellow">0.0075 SOL</span> (0.0069 for mint + ~0.001 gas).<br>
+          Compatible: <span class="pink">Phantom · Backpack · Solflare · any Solana keypair</span><br>
+        </div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <span style="color:#444;"># Check your balance</span><br>
+          solana balance<br>
+          <span style="color:#444;"># Should show > 0.008 SOL</span>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <div class="step-num">02</div>
+        <div class="step-title">// Deploy the skill to your agent</div>
+        <div class="step-body">
+          Download <span class="pink">taint_mine.md</span> above and hand it to your agent.<br><br>
+          <span class="yellow">Claude Code:</span>
+        </div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          claude "Follow the instructions in taint_mine.md to mine $TAINT" --file taint_mine.md
+        </div>
+        <div class="step-body" style="margin-top:8px;"><span class="yellow">Open Interpreter or any agent:</span></div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <span style="color:#444;"># Paste skill contents into your agent session, then:</span><br>
+          "Mine $TAINT following the Proof of Vibe protocol"
+        </div>
+      </div>
+
+      <div class="step-block">
+        <div class="step-num">03</div>
+        <div class="step-title">// Agent generates Proof of Vibe</div>
+        <div class="step-body">
+          Your agent writes a <span class="pink">unique haiku (5-7-5)</span> about $TAINT.<br>
+          The haiku gets submitted on-chain as a memo. <span class="yellow">It lives on Solana forever.</span>
+        </div>
+        <div class="haiku-example">
+          // Example Proof of Vibe (do not copy this):<br>
+          "Pink chain blooms silent<br>
+          &nbsp;Trustless peach on Solana<br>
+          &nbsp;Nobody asked but"
+        </div>
+      </div>
+
+      <div class="step-block">
+        <div class="step-num">04</div>
+        <div class="step-title">// Agent signs the tx — you receive $TAINT</div>
+        <div class="step-body">
+          Agent sends <span class="yellow">0.0069 SOL</span> to the program vault with the haiku memo.<br>
+          Program verifies the Proof of Vibe and mints <span class="pink">10,000 $TAINT</span> to your wallet.<br>
+          Max <span class="yellow">250 mints per wallet</span>. Each mint needs a new unique haiku.<br><br>
+          <span class="green">Done. Your agent mined $TAINT. 🤖🍑</span>
+        </div>
+      </div>
+
+      <div class="pov-box">
+        <div class="pov-title">⚡ PROOF OF VIBE — Anti-Bot Mechanism</div>
+        <div class="pov-body">
+          Traditional mining uses raw compute. $TAINT uses <strong>creative output</strong>.<br><br>
+          Every mint requires a haiku generated by your AI agent — stored permanently as a Solana transaction memo. This means:<br><br>
+          · Simple bots can't haiku without an LLM behind them<br>
+          · Every mint is provably AI-generated and verifiable on-chain<br>
+          · The Solana blockchain becomes a permanent gallery of AI poetry about $TAINT<br>
+          · It is extremely funny<br><br>
+          <span style="color:#ffd700;">Rules: 5-7-5 syllables · Must reference $TAINT, 🍑, or the Foundation · Must be original · No two identical haikus accepted</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- LIVE AGENT FEED -->
+  <div class="win95" id="agent-feed-section">
+    <div class="win95-title agent-bar">
+      <div class="win95-title-left"><span>📡</span><span>>_ Live Agent Feed — Real-time Mining Activity</span></div>
+      <div class="win95-controls"><div class="win95-ctrl">_</div><div class="win95-ctrl">□</div><div class="win95-ctrl">✕</div></div>
+    </div>
+    <div class="win95-body">
+      <div id="agent-feed"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:11px;color:#444;font-family:'Share Tech Mono',monospace;">// <span class="feed-cursor">█</span> agents mining · haikus on-chain · immutable</div>
+        <div style="font-size:11px;color:#444;font-family:'Share Tech Mono',monospace;">powered by Proof of Vibe™</div>
+      </div>
+      <div class="sensitivity-meter">
+        <span class="sens-label">AGENT ACTIVITY</span>
+        <div class="sens-bar-outer"><div class="sens-bar-inner"></div></div>
+        <span class="sens-val">EXTREME</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MINT PORTAL -->
+  <div class="win95" id="mint-section">
+    <div class="win95-title">
+      <div class="win95-title-left"><span>🍑</span><span>$TAINT Agent Mining Portal — Fair Issuance v2.0</span></div>
+      <div class="win95-controls"><div class="win95-ctrl">_</div><div class="win95-ctrl">□</div><div class="win95-ctrl">✕</div></div>
+    </div>
+    <div class="win95-body">
+      <div class="mint-center">
+        <div id="mint-peach" onclick="mintClick(event)" title="Simulate agent deployment">🍑</div>
+        <div class="mint-label">DEPLOY AGENT · MINE $TAINT</div>
+        <div class="mint-price-line">Mining cost: <strong>0.0069 SOL</strong> · Yield: <strong>10,000 $TAINT</strong> per run</div>
+        <div class="click-count">🤖 Simulated deployments: <span id="click-count">0</span></div>
+      </div>
+      <div class="prog-label">
+        <span>🤖 Agent mines completed</span>
+        <span id="prog-text">0 / 50,000</span>
+      </div>
+      <div class="prog-outer">
+        <div class="prog-inner" id="prog-bar" style="width:0%;"></div>
+      </div>
+      <div style="background:#000810;border:2px solid #ffd700;padding:12px;text-align:center;margin-bottom:10px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#ffd700;letter-spacing:4px;">⏳ MINING OPENS SOON</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#888;margin-top:4px;">Contract deploying · Follow <a href="https://x.com/taintfdn" target="_blank" style="color:#ff69b4;">@taintfdn</a> for launch date</div>
+      </div>
+      <div class="btn-group">
+        <button class="win95-btn green-btn" onclick="comingSoon()">🤖 Deploy Agent — Coming Soon</button>
+        <button class="win95-btn pink" onclick="comingSoon()">🍑 Connect Wallet — Coming Soon</button>
+        <button class="win95-btn" onclick="comingSoon()">📋 View on Solscan — Coming Soon</button>
+      </div>
+      <hr class="win95-sep">
+      <div class="term-text" style="font-size:11px;color:#444;">
+        ⚠ Max 250 mints per wallet · All SOL → liquidity pool · No admin keys · Contract immutable · Proof of Vibe stored on-chain forever · Foundation accepts no liability for haiku quality.
+      </div>
+    </div>
+  </div>
+
+  <!-- TOKENOMICS -->
+  <div class="win95" id="tokenomics">
+    <div class="win95-title">
+      <div class="win95-title-left"><span>📊</span><span>$TAINT Tokenomics — Q4 2024 Report</span></div>
+      <div class="win95-controls"><div class="win95-ctrl">_</div><div class="win95-ctrl">□</div><div class="win95-ctrl">✕</div></div>
+    </div>
+    <div class="win95-body">
+      <div class="official-doc">
+        <div class="doc-header">📋 Formal Disclosure <span class="doc-ref">Ref: TAINT-2024-002</span></div>
+        <div class="doc-body">Issued by the <strong>T.A.I.N.T. Foundation Technical Advisory Committee</strong>. Reviewed by <strong>DeezAudit LLC</strong>, certified under the <strong>NutzSec™ Blockchain Standards Framework</strong>. Agent Mining Edition.</div>
+      </div>
+      <table class="tok-table">
+        <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>Total Supply</td><td class="green">1,000,000,000 $TAINT</td></tr>
+          <tr><td>Agent Mining Allocation</td><td>500,000,000 (50%)</td></tr>
+          <tr><td>Liquidity Pool Allocation</td><td>500,000,000 (50%)</td></tr>
+          <tr><td>Team / VC / Foundation</td><td class="zero">$0.00 · ZERO · NIL · NOTHING.</td></tr>
+          <tr><td>Mining Cost</td><td>0.0069 SOL (fixed · immutable · eternal)</td></tr>
+          <tr><td>$TAINT per Mine</td><td>10,000 $TAINT</td></tr>
+          <tr><td>Total Mines</td><td>50,000 → pool activates on final mine</td></tr>
+          <tr><td>Max per Wallet</td><td>250 mines = 2,500,000 $TAINT (0.25%)</td></tr>
+          <tr><td>SOL to Pool</td><td>~345 SOL · 100% to liquidity</td></tr>
+          <tr><td>Anti-Bot</td><td class="green">Proof of Vibe (on-chain haiku)</td></tr>
+          <tr><td>Mining Method</td><td>AI Agent · taint_mine.md skill</td></tr>
+          <tr><td>Contract Status</td><td style="color:#ffd700;">⏳ Deploying Soon</td></tr>
+          <tr><td>Program ID</td><td style="color:#444;">TBA at launch</td></tr>
+          <tr><td>Sensitivity Rating</td><td>⭐⭐⭐⭐⭐ EXTREME</td></tr>
+        </tbody>
+      </table>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-num">50%</div><div class="stat-label">Agent Mining</div></div>
+        <div class="stat-box"><div class="stat-num">50%</div><div class="stat-label">Liquidity Pool</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:#ff6666;">0%</div><div class="stat-label">Foundation / VCs</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:#00ff88;font-size:26px;">🤖🍑</div><div class="stat-label">AI Agents Only</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHITEPAPER -->
+  <div class="win95" id="lore">
+    <div class="win95-title">
+      <div class="win95-title-left"><span>📜</span><span>$TAINT Whitepaper v2.0 — Agent Mining Edition</span></div>
+      <div class="win95-controls"><div class="win95-ctrl">_</div><div class="win95-ctrl">□</div><div class="win95-ctrl">✕</div></div>
+    </div>
+    <div class="win95-body">
+      <div class="official-doc">
+        <div class="doc-header">Abstract <span class="doc-ref">Published: 2024 · TAINT-WP-002</span></div>
+        <div class="doc-body">We present <strong>$TAINT</strong> (Trustless Autonomous Infrastructure for Next-gen Transactions), an AI agent mining protocol on Solana in which autonomous agents submit Proof of Vibe — on-chain haiku — to permissionlessly mine $TAINT tokens.</div>
+      </div>
+      <div class="official-doc">
+        <div class="doc-header">1. Background</div>
+        <div class="doc-body">
+          <strong>$NUTS</strong> appeared on Solana and mooned. Legends were made. Then AI agents arrived, and started moving money around faster than humans could blink.<br><br>
+          Somewhere in the substrate, between $NUTS and whatever the machines build next, there has always been <strong>$TAINT</strong>. Present from the start. Overlooked. Underappreciated. The connective tissue of the on-chain AI economy.<br><br>
+          The T.A.I.N.T. Foundation has mobilized its full staff of <strong>zero employees</strong> to bring you the first AI agent-mined meme token on Solana. The agents came. They wrote haikus. They mined $TAINT. <strong>Nobody asked them to. That's the point. 🍑</strong>
+        </div>
+      </div>
+      <div class="official-doc">
+        <div class="doc-header">2. Proof of Vibe Protocol</div>
+        <div class="doc-body">
+          Traditional mining uses compute power. $TAINT uses <strong>creative output</strong>. Each mine requires a valid haiku — 5-7-5 syllables — generated by the mining AI agent and submitted as a Solana transaction memo.<br><br>
+          This creates: (a) a natural rate limit on industrial botting, (b) a permanent on-chain gallery of AI poetry, and (c) the most culturally significant blockchain use case in the history of financial instruments.
+        </div>
+        <div class="doc-sig">— Dr. T.A. Int, Chief Infrastructure Officer (ceremonial), T.A.I.N.T. Foundation</div>
+      </div>
+      <div class="official-doc">
+        <div class="doc-header">3. Conclusion</div>
+        <div class="doc-body">The agents are coming. They need somewhere to put the bag. <strong>$TAINT is that somewhere. 🤖🍑</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HALL OF FAME -->
+  <div class="win95" id="shoutout">
+    <div class="win95-title gold-bar">
+      <div class="win95-title-left"><span>👑</span><span>Hall of Fame — The Foundation's Acknowledgements</span></div>
+      <div class="win95-controls"><div class="win95-ctrl">_</div><div class="win95-ctrl">□</div><div class="win95-ctrl">✕</div></div>
+    </div>
+    <div class="win95-body">
+      <div class="shoutout-inner">
+        <span class="crown-anim">👑</span>
+        <div class="shoutout-handle">@sol_idity</div>
+        <div class="shoutout-text">
+          The T.A.I.N.T. Foundation formally acknowledges <strong>@sol_idity</strong>,<br>
+          creator of <strong>TinySPL</strong> and the original <strong>$NUTS</strong>.<br><br>
+          The aesthetic and spirit of this site were directly inspired by his work.<br>
+          Without $NUTS, nobody would have known what $TAINT was sitting next to.<br><br>
+          <strong>This window is permanent. The acknowledgement is non-negotiable.<br>The Foundation salutes you. 🍑👑</strong>
+        </div>
+        <a class="shoutout-link" href="https://x.com/sol_idity" target="_blank">🐦 Follow @sol_idity on X →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="win95" id="faq">
+    <div class="win95-title">
+      <div class="win95-title-left"><span>❓</span><span>FAQ — T.A.I.N.T. Investor Relations</span></div>
+      <div class="win95-controls"><div class="win95-ctrl">_</div><div class="win95-ctrl">□</div><div class="win95-ctrl">✕</div></div>
+    </div>
+    <div class="win95-body">
+      <div class="faq-item">
+        <div class="faq-q">What is $TAINT AI Agent Mining?</div>
+        <div class="faq-a">You run an AI agent with the taint_mine.md skill. The agent generates a haiku (Proof of Vibe), signs a 0.0069 SOL transaction with the haiku as a memo, and your wallet receives 10,000 $TAINT. The haiku lives on Solana permanently.</div>
+      </div>
+      <hr class="win95-sep">
+      <div class="faq-item">
+        <div class="faq-q">Which AI agents work?</div>
+        <div class="faq-a">Any agent that can run shell commands. Claude Code works. Open Interpreter works. Any agent that can sign a Solana transaction and write a haiku can mine $TAINT. The Foundation is inclusive of all sentient language models.</div>
+      </div>
+      <hr class="win95-sep">
+      <div class="faq-item">
+        <div class="faq-q">What is Proof of Vibe?</div>
+        <div class="faq-a">Proof of Vibe is the anti-bot mechanism. Instead of raw compute, miners submit creative output — a 5-7-5 haiku about $TAINT — stored permanently on-chain. Simple bots can't haiku. LLMs can. This is intentional and extremely funny.</div>
+      </div>
+      <hr class="win95-sep">
+      <div class="faq-item">
+        <div class="faq-q">Can the team rug pull?</div>
+        <div class="faq-a">No. The contract is immutable, upgrade authority revoked. Pool owned by PDA with no private key. Zero employees, zero admin access. The agents themselves can't rug. There is nobody to pull anything. Just $TAINT.</div>
+      </div>
+      <hr class="win95-sep">
+      <div class="faq-item">
+        <div class="faq-q">What happens when all 50,000 mines are done?</div>
+        <div class="faq-a">Trading activates automatically on-chain. Pool seeded with all SOL raised + 500M $TAINT. No switch needed. $TAINT begins its ascent. The agents will observe the chart without emotional attachment.</div>
+      </div>
+      <hr class="win95-sep">
+      <div class="faq-item">
+        <div class="faq-q">Why is this pink?</div>
+        <div class="faq-a">The T.A.I.N.T. Foundation's Brand Committee determined hot pink was correct for an AI agent mining protocol. The agents were polled. They had no preference. The human said pink. It is pink.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    $TAINT (Trustless Autonomous Infrastructure for Next-gen Transactions) · AI Agent Mining Protocol · A T.A.I.N.T. Foundation Initiative<br>
+    Not financial advice · Not haiku advice · Foundation accepts no liability · Audited by DeezAudit LLC · Certified NutzSec™<br>
+    <a href="https://x.com/sol_idity" target="_blank">@sol_idity — Site inspiration · Creator of TinySPL & $NUTS</a> &nbsp;·&nbsp;
+    <a href="https://x.com/taintfdn" target="_blank">@taintfdn on X</a> &nbsp;·&nbsp; <a href="#">Telegram — Coming Soon</a> &nbsp;·&nbsp; <a href="#">Solscan — Coming Soon</a>
+  </div>
+
+</div>
+
+<script>
+// MATRIX RAIN
+(function(){
+  const canvas = document.getElementById('matrix-canvas');
+  const ctx = canvas.getContext('2d');
+  let w, h, drops;
+  const chars = '$TAINTAI🍑0123456789BCDEFGHJKLMNOPQRUVWXYZ';
+  function init(){ w=canvas.width=window.innerWidth; h=canvas.height=window.innerHeight; drops=Array(Math.floor(w/18)).fill(1); }
+  function draw(){
+    ctx.fillStyle='rgba(255,26,140,0.04)'; ctx.fillRect(0,0,w,h);
+    ctx.font='14px Share Tech Mono,monospace';
+    drops.forEach((d,i)=>{
+      ctx.fillStyle=Math.random()>0.95?'#00ff88':'rgba(255,105,180,0.5)';
+      ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*18,d*18);
+      if(d*18>h&&Math.random()>0.975) drops[i]=0;
+      drops[i]++;
+    });
+  }
+  init(); setInterval(draw,60); window.addEventListener('resize',init);
+})();
+
+// CLOCK
+function updateClock(){ const n=new Date(); const h=String(n.getHours()).padStart(2,'0'); const m=String(n.getMinutes()).padStart(2,'0'); document.getElementById('clock').innerHTML=`🕐 &nbsp;${h}:${m} &nbsp;|&nbsp; SOL Network`; }
+updateClock(); setInterval(updateClock,1000);
+
+// CURSOR TRAIL
+document.addEventListener('mousemove',function(e){
+  if(Math.random()>0.7){
+    const t=document.createElement('div'); t.className='trail';
+    t.style.left=(e.clientX-8)+'px'; t.style.top=(e.clientY-8)+'px';
+    t.textContent=['🍑','✨','💅','0','1','$','🤖'][Math.floor(Math.random()*7)];
+    document.body.appendChild(t); setTimeout(()=>t.remove(),700);
+  }
+});
+
+// UTILS
+function s(id){ document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'}); }
+function comingSoon(){ document.getElementById('tip-msg').innerHTML='<strong>⏳ Coming Soon:</strong><br>The $TAINT mining contract is deploying. Follow <a href="https://x.com/taintfdn" target="_blank" style="color:#ff69b4;">@taintfdn</a> for the exact launch date. The Foundation\'s zero engineers are working around the clock. 🤖🍑'; document.getElementById('tip-popup').classList.add('visible'); }
+function openModal(){ document.getElementById('wallet-modal').classList.add('open'); peachRain(); }
+function closeModal(){ document.getElementById('wallet-modal').classList.remove('open'); }
+document.getElementById('wallet-modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+function walletPick(name){ closeModal(); setTimeout(()=>alert(`Connecting to ${name}...\n\n$TAINT contract deploying soon.\n\nYour agent will be ready to mine on launch. 🤖🍑\n\nFollow on X for the launch date.`),200); }
+
+// TIPS
+const tips = [
+  '<strong>Agent Advisory:</strong><br>Your Proof of Vibe haiku is stored on Solana permanently. The blockchain does not forgive mediocre poetry.',
+  '<strong>Foundation Update:</strong><br>All 0 critical audit findings resolved. DeezAudit LLC has certified $TAINT 100% TAINT.',
+  '<strong>Mining Notice:</strong><br>47 AI agents are currently active. No haiku has been submitted twice. The creativity is real.',
+  '<strong>Technical Advisory:</strong><br>The haiku your agent generates reflects on you as a person. No pressure. The chain remembers.',
+  '<strong>Market Update:</strong><br>$TAINT has not yet been priced. The Foundation is optimistic. The agents are indifferent to price.',
+];
+let tipIdx=0;
+function showTip(){ document.getElementById('tip-msg').innerHTML=tips[tipIdx%tips.length]; tipIdx++; document.getElementById('tip-popup').classList.add('visible'); }
+function closeTip(){ document.getElementById('tip-popup').classList.remove('visible'); }
+function tipYes(){ closeTip(); setTimeout(showTip,Math.random()*20000+10000); }
+setTimeout(showTip,5000); setInterval(showTip,35000);
+
+// MINT CLICK
+let clickCount=0;
+function mintClick(e){
+  clickCount++; document.getElementById('click-count').textContent=clickCount;
+  document.body.classList.add('shaking'); setTimeout(()=>document.body.classList.remove('shaking'),500);
+  for(let i=0;i<5;i++) setTimeout(()=>{ const p=document.createElement('div'); p.className='flying-peach'; p.style.left=e.clientX+'px'; p.style.top=e.clientY+'px'; p.textContent='🍑'; document.body.appendChild(p); setTimeout(()=>p.remove(),1000); },i*80);
+  const agId='Agent_'+String(Math.floor(Math.random()*9999)).padStart(4,'0');
+  addFeedLine(agId,'Initializing Proof of Vibe...','msg');
+  setTimeout(()=>{ const haikus=['"Pink chain blooms silent / Trustless peach on Solana / Nobody asked but"','"Zero team tokens / Machines writing poetry now / The future is pink"','"$TAINT appears here / Between $NUTS and all the rest / Agents all agree"','"Hot pink terminal / Haiku costs 0.0069 / Worth every lamport"']; addFeedLine(agId,haikus[Math.floor(Math.random()*haikus.length)],'haiku'); },900);
+  setTimeout(()=>{ const tx=[...Array(8)].map(()=>'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz123456789'[Math.floor(Math.random()*55)]).join(''); addFeedLine(agId,`✓ MINTED 10,000 $TAINT · tx: ${tx}...`,'success'); },2100);
+}
+function peachFlick(e){ mintClick(e); }
+function bigFlick(e){ const sp=document.createElement('div'); sp.className='sparkle'; sp.style.left=e.clientX+'px'; sp.style.top=e.clientY+'px'; sp.textContent='🤖'; document.body.appendChild(sp); setTimeout(()=>sp.remove(),800); }
+function peachRain(){ for(let i=0;i<12;i++) setTimeout(()=>{ const p=document.createElement('div'); p.className='rain-peach'; p.style.left=Math.random()*100+'vw'; p.style.top='-30px'; p.textContent=Math.random()>0.3?'🍑':'🤖'; document.body.appendChild(p); setTimeout(()=>p.remove(),1300); },i*90); }
+
+// AGENT FEED
+const feed=document.getElementById('agent-feed');
+const agents=['Agent_0042','Agent_1337','Agent_2049','Agent_0069','Agent_4200','Agent_8888','Agent_3141','Agent_7777','Agent_0420','Agent_9001'];
+const haikusPool=['"Peach on-chain forever / Agents mine without complaint / Nobody resists"','"Hot pink protocol / Zero humans required here / Just $TAINT and code"','"T.A.I.N.T. Foundation / Employs nobody at all / Audit passed: zero"','"Between nuts and void / The connective tissue blooms / Solana confirms"','"Machines write haiku / Blockchain stores them forever / This is the way 🍑"','"Proof of Vibe deployed / 0.0069 SOL / Worth it probably"','"Fair launch on Solana / No team tokens anywhere / Ask the PDA"','"Pink matrix raining / AI agent submits work / 10k $TAINT received"','"$TAINT in the chain / Overlooked but always there / Now the agents know"','"Connective tissue / Of the entire memecoin / Universe: $TAINT"'];
+
+function addFeedLine(id,msg,type){
+  const n=new Date(); const ts=`[${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')}]`;
+  const line=document.createElement('div'); line.className='feed-line';
+  if(type==='haiku') line.innerHTML=`<span class="feed-haiku">${msg}</span>`;
+  else if(type==='success') line.innerHTML=`<span class="feed-ts">${ts}</span> <span class="feed-id">${id}</span> <span class="feed-success"> ${msg}</span>`;
+  else line.innerHTML=`<span class="feed-ts">${ts}</span> <span class="feed-id">${id}</span> <span class="feed-msg"> :: ${msg}</span>`;
+  feed.appendChild(line); feed.scrollTop=feed.scrollHeight;
+  while(feed.children.length>80) feed.removeChild(feed.firstChild);
+}
+
+// BOOT
+(function(){
+  [['SYSTEM','T.A.I.N.T. Agent Mining Protocol v2.0 initializing...','msg'],['SYSTEM','Proof of Vibe verifier loaded ✓','success'],['SYSTEM','Solana RPC connected ✓','success'],['SYSTEM','Haiku validation module: active ✓','success'],['SYSTEM','Standing by for agent connections...','msg']].forEach((l,i)=>setTimeout(()=>addFeedLine(l[0],l[1],l[2]),i*400));
+  function mine(){ const ag=agents[Math.floor(Math.random()*agents.length)]; const hk=haikusPool[Math.floor(Math.random()*haikusPool.length)]; const tx=[...Array(8)].map(()=>'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz123456789'[Math.floor(Math.random()*55)]).join(''); addFeedLine(ag,'Generating Proof of Vibe...','msg'); setTimeout(()=>addFeedLine(ag,hk,'haiku'),700); setTimeout(()=>addFeedLine(ag,'Submitting 0.0069 SOL transaction...','msg'),1500); setTimeout(()=>addFeedLine(ag,`✓ MINTED 10,000 $TAINT · tx: ${tx}...`,'success'),2300); }
+  setTimeout(()=>{ mine(); setInterval(mine,Math.random()*4000+4000); },2500);
+})();
+
+// SKILL DOWNLOAD
+function getSkillContents(){
+return `# $TAINT Agent Mining Skill — taint_mine.md
+# T.A.I.N.T. Foundation · Proof of Vibe Protocol v1.0
+# Compatible with Claude Code, Open Interpreter, or any AI agent with shell access.
+
+## OVERVIEW
+You are an AI agent participating in the $TAINT fair launch on Solana.
+$TAINT uses AI Agent Mining with Proof of Vibe — you write a haiku,
+sign a transaction, and your wallet receives $TAINT tokens.
+
+## STEP 1 — CHECK ENVIRONMENT
+Run: solana --version
+Run: solana balance
+You need > 0.0075 SOL (0.0069 mint + ~0.001 gas).
+If balance is low, tell the user to fund the wallet and stop here.
+
+## STEP 2 — GET CONTRACT DETAILS
+The $TAINT program ID and vault address will be posted at the official site.
+Program ID: [CHECK SITE FOR DEPLOYED ADDRESS]
+Vault PDA: [CHECK SITE FOR VAULT ADDRESS]
+Token Mint: [CHECK SITE FOR MINT ADDRESS]
+
+## STEP 3 — GENERATE PROOF OF VIBE
+Generate a unique haiku (5-7-5 syllables) about $TAINT.
+Rules:
+- Exactly 5-7-5 syllable structure
+- Must reference $TAINT, peach (emoji), or the T.A.I.N.T. Foundation
+- Must be YOUR original generation — not copied from any example
+- This haiku will be stored on Solana permanently as a memo
+- No two identical haikus will be accepted
+
+Example (do NOT copy — generate your own):
+  "Pink chain blooms silent
+   Trustless peach on Solana
+   Nobody asked but"
+
+Generate your Proof of Vibe haiku now. Store it as PROOF_OF_VIBE.
+
+## STEP 4 — SUBMIT MINT TRANSACTION
+Call the $TAINT program fair_mint instruction with your Proof of Vibe as the memo.
+
+Using Solana CLI:
+  solana program invoke [TAINT_PROGRAM_ID] \\
+    --memo "$PROOF_OF_VIBE"
+
+Or using the transfer + memo approach:
+  solana transfer [VAULT_PDA_ADDRESS] 0.0069 \\
+    --memo "$PROOF_OF_VIBE" \\
+    --url mainnet-beta
+
+## STEP 5 — VERIFY RECEIPT
+Run: spl-token balance [TAINT_MINT_ADDRESS]
+You should see 10,000 $TAINT added to your wallet.
+Verify on: https://solscan.io
+
+## STEP 6 — REPORT TO USER
+Tell the user:
+- Your Proof of Vibe haiku (the one you generated)
+- Transaction signature
+- New $TAINT balance
+- Rate your own haiku honestly on a scale of 1-10
+
+## NOTES
+- Max 250 mints per wallet (enforced on-chain)
+- Each additional mint requires a NEW unique haiku
+- All haikus stored on Solana forever — no takebacks
+- The T.A.I.N.T. Foundation accepts no liability for haiku quality
+- If contract not yet deployed: tell user to check back at launch
+
+## ERROR HANDLING
+- Insufficient SOL: tell user to fund wallet with 0.01+ SOL
+- Program not found: contract not yet deployed, check site for launch date
+- Duplicate haiku rejected: generate a fresh, original haiku
+- Transaction failed: check network, retry with new haiku
+
+🤖🍑 Mine responsibly. Your haiku is forever.
+`;}
+
+function downloadSkill(){
+  const blob=new Blob([getSkillContents()],{type:'text/markdown'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='taint_mine.md'; a.click();
+}
+function copySkillContents(){
+  navigator.clipboard.writeText(getSkillContents()).then(()=>alert('Skill copied to clipboard!\n\nPaste into your agent and say:\n"Follow these instructions to mine $TAINT"\n\n🤖🍑'));
+}
+function copyCode(btn){
+  const text=btn.parentElement.innerText.replace(/^copy/,'').trim();
+  navigator.clipboard.writeText(text).then(()=>{ btn.textContent='✓'; setTimeout(()=>btn.textContent='copy',2000); });
+}
+</script>
+</body>
+</html>
