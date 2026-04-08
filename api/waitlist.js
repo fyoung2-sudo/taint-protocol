@@ -1,4 +1,10 @@
-import { kv } from '@vercel/kv';
+import { createClient } from '@vercel/kv';
+
+// Auto-detect env vars regardless of prefix (KV_ or STORAGE_ etc)
+const kv = createClient({
+  url: process.env.KV_REST_API_URL || process.env.STORAGE_REST_API_URL || process.env.REDIS_URL,
+  token: process.env.KV_REST_API_TOKEN || process.env.STORAGE_REST_API_TOKEN || process.env.REDIS_TOKEN,
+});
 
 export default async function handler(req, res) {
   // CORS headers
