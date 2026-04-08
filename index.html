@@ -542,6 +542,87 @@
     </div>
   </div>
 
+  <!-- FOUNDING AGENTS WAITLIST -->
+  <div class="win95" id="founding-agents">
+    <div class="win95-title" style="background:linear-gradient(90deg,#7a4000,#ffc800,#7a4000);">
+      <div class="win95-title-left"><span>⚡</span><span>FOUNDING AGENTS — First 100 Miners (Pre-Launch Waitlist)</span></div>
+      <div class="win95-controls"><div class="win95-ctrl">_</div><div class="win95-ctrl">□</div><div class="win95-ctrl">✕</div></div>
+    </div>
+    <div class="win95-body">
+      <div style="text-align:center;margin-bottom:12px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:42px;color:#ffd700;letter-spacing:3px;text-shadow:2px 2px 0 #7a4000;">FOUNDING AGENTS</div>
+        <div class="term-text" style="font-size:12px;color:#a8ffa8;margin-bottom:0;">
+          The first <span class="pink">100 wallets</span> to sign get <span class="yellow">guaranteed early mining access</span> before public launch.<br>
+          No cost. No transaction. Just a signature to prove you're real. 🤖
+        </div>
+      </div>
+
+      <div style="background:#000;border:2px solid #ffd700;padding:14px;text-align:center;margin-bottom:12px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;" id="spots-counter">
+          <span style="color:#ffd700;" id="spots-claimed">—</span>
+          <span style="color:#667766;"> / 100</span>
+        </div>
+        <div style="font-size:11px;color:#888;font-family:'Share Tech Mono',monospace;">FOUNDING AGENT SPOTS CLAIMED</div>
+        <div class="prog-outer" style="margin:8px 0 0 0;border-color:#ffd700;">
+          <div id="spots-bar" style="height:100%;width:0%;background:repeating-linear-gradient(90deg,#ffd700 0,#ffd700 10px,#ffaa00 10px,#ffaa00 20px);transition:width 0.5s;"></div>
+        </div>
+      </div>
+
+      <div id="wallet-state-disconnected">
+        <button class="win95-btn" style="background:#1a1000;border-color:#ffd700 #7a4000 #7a4000 #ffd700;color:#ffd700;font-weight:bold;font-size:14px;padding:12px;" onclick="connectWalletForWaitlist()">
+          🔗 CONNECT WALLET — Claim Your Founding Agent Spot
+        </button>
+        <div style="font-size:10px;color:#444;text-align:center;margin-top:6px;font-family:'Share Tech Mono',monospace;">
+          Supports Phantom · Solflare · Backpack · Any Solana wallet
+        </div>
+      </div>
+
+      <div id="wallet-state-connected" style="display:none;">
+        <div style="background:#0d001a;border:1px solid #ffd700;padding:10px;margin-bottom:8px;text-align:center;">
+          <div style="font-size:10px;color:#888;font-family:'Share Tech Mono',monospace;">CONNECTED WALLET</div>
+          <div style="font-size:13px;color:#ffd700;font-family:'Share Tech Mono',monospace;word-break:break-all;" id="connected-address"></div>
+        </div>
+        <button class="win95-btn" style="background:#1a1000;border-color:#ffd700 #7a4000 #7a4000 #ffd700;color:#ffd700;font-weight:bold;font-size:14px;padding:12px;" onclick="signForWaitlist()">
+          ✍️ SIGN MESSAGE — Claim Founding Agent Spot #<span id="next-spot">?</span>
+        </button>
+        <div style="font-size:10px;color:#444;text-align:center;margin-top:6px;font-family:'Share Tech Mono',monospace;">
+          Free signature only · No transaction · No SOL spent
+        </div>
+      </div>
+
+      <div id="wallet-state-claimed" style="display:none;">
+        <div style="background:#001a00;border:2px solid #00ff88;padding:14px;text-align:center;">
+          <div style="font-size:28px;margin-bottom:4px;">🤖✅</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:#00ff88;letter-spacing:2px;">FOUNDING AGENT #<span id="your-spot">?</span></div>
+          <div style="font-size:12px;color:#a8ffa8;font-family:'Share Tech Mono',monospace;margin-top:4px;">
+            Your wallet is locked in. You'll get early mining access before public launch.
+          </div>
+          <div style="font-size:11px;color:#667766;font-family:'Share Tech Mono',monospace;margin-top:6px;word-break:break-all;" id="claimed-address"></div>
+        </div>
+      </div>
+
+      <div id="wallet-state-full" style="display:none;">
+        <div style="background:#1a0000;border:2px solid #ff6666;padding:14px;text-align:center;">
+          <div style="font-size:28px;margin-bottom:4px;">🚫</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:#ff6666;letter-spacing:2px;">ALL 100 SPOTS CLAIMED</div>
+          <div style="font-size:12px;color:#ff9999;font-family:'Share Tech Mono',monospace;margin-top:4px;">
+            The Founding Agent roster is full. Public mining opens soon.<br>Follow <a href="https://x.com/taintfdn" target="_blank" style="color:#ff69b4;">@taintfdn</a> for the launch date.
+          </div>
+        </div>
+      </div>
+
+      <div id="wallet-error" style="display:none;background:#1a0000;border:1px solid #ff6666;padding:8px;text-align:center;margin-top:8px;">
+        <div style="font-size:11px;color:#ff6666;font-family:'Share Tech Mono',monospace;" id="wallet-error-msg"></div>
+      </div>
+
+      <hr class="win95-sep">
+      <div id="recent-agents" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#667766;">
+        <div style="color:#ffd700;font-size:10px;margin-bottom:6px;">RECENT FOUNDING AGENTS:</div>
+        <div id="recent-list">Loading...</div>
+      </div>
+    </div>
+  </div>
+
   <!-- MINT PORTAL -->
   <div class="win95" id="mint-section">
     <div class="win95-title">
@@ -894,6 +975,126 @@ function copyCode(btn){
   const text=btn.parentElement.innerText.replace(/^copy/,'').trim();
   navigator.clipboard.writeText(text).then(()=>{ btn.textContent='✓'; setTimeout(()=>btn.textContent='copy',2000); });
 }
+
+// ===== FOUNDING AGENTS WAITLIST =====
+const WAITLIST_API = '/api/waitlist';
+let connectedWallet = null;
+
+function showWalletError(msg){
+  const el=document.getElementById('wallet-error');
+  document.getElementById('wallet-error-msg').textContent=msg;
+  el.style.display='block';
+  setTimeout(()=>el.style.display='none',5000);
+}
+
+function truncAddr(addr){ return addr.slice(0,4)+'...'+addr.slice(-4); }
+
+function switchWalletState(state){
+  ['disconnected','connected','claimed','full'].forEach(s=>{
+    const el=document.getElementById('wallet-state-'+s);
+    if(el) el.style.display=(s===state)?'block':'none';
+  });
+}
+
+async function loadWaitlistData(){
+  try {
+    const res = await fetch(WAITLIST_API);
+    if(!res.ok) throw new Error('API not available');
+    const data = await res.json();
+    document.getElementById('spots-claimed').textContent = data.count || 0;
+    document.getElementById('spots-bar').style.width = ((data.count||0)/100*100)+'%';
+    document.getElementById('next-spot').textContent = (data.count||0)+1;
+    if(data.count>=100) switchWalletState('full');
+    const listEl=document.getElementById('recent-list');
+    if(data.recent && data.recent.length>0){
+      listEl.innerHTML=data.recent.map((w,i)=>
+        `<div style="margin-bottom:2px;"><span style="color:#ffd700;">#${w.spot}</span> <span style="color:#00ff88;">${truncAddr(w.wallet)}</span> <span style="color:#333;">· ${w.time||''}</span></div>`
+      ).join('');
+    } else {
+      listEl.innerHTML='<div style="color:#444;">No founding agents yet. Be the first. 🤖</div>';
+    }
+    // Check if current wallet already claimed
+    if(connectedWallet && data.wallets){
+      const existing = data.wallets.find(w=>w.wallet===connectedWallet);
+      if(existing){
+        document.getElementById('your-spot').textContent=existing.spot;
+        document.getElementById('claimed-address').textContent=connectedWallet;
+        switchWalletState('claimed');
+      }
+    }
+  } catch(e) {
+    document.getElementById('spots-claimed').textContent='0';
+    document.getElementById('recent-list').innerHTML='<div style="color:#ff6666;">Waitlist loading... Backend setup required. See instructions below.</div>';
+  }
+}
+
+function getProvider(){
+  if(window.phantom?.solana?.isPhantom) return window.phantom.solana;
+  if(window.solflare?.isSolflare) return window.solflare;
+  if(window.backpack) return window.backpack;
+  if(window.solana) return window.solana;
+  return null;
+}
+
+async function connectWalletForWaitlist(){
+  const provider = getProvider();
+  if(!provider){
+    showWalletError('No Solana wallet found! Install Phantom, Solflare, or Backpack.');
+    window.open('https://phantom.app/','_blank');
+    return;
+  }
+  try {
+    const resp = await provider.connect();
+    connectedWallet = resp.publicKey.toString();
+    document.getElementById('connected-address').textContent = connectedWallet;
+    switchWalletState('connected');
+    // Check if already claimed
+    loadWaitlistData();
+  } catch(e){
+    showWalletError('Wallet connection cancelled or failed.');
+  }
+}
+
+async function signForWaitlist(){
+  if(!connectedWallet) return;
+  const provider = getProvider();
+  if(!provider){ showWalletError('Wallet not found'); return; }
+  try {
+    const message = `I claim my Founding Agent spot for $TAINT.\n\nWallet: ${connectedWallet}\nTimestamp: ${new Date().toISOString()}\n\nProof of Vibe incoming. The Foundation acknowledges me. 🍑`;
+    const encodedMessage = new TextEncoder().encode(message);
+    const signedMessage = await provider.signMessage(encodedMessage, 'utf8');
+    // Convert signature to hex string
+    const sigArray = signedMessage.signature || signedMessage;
+    const sigHex = Array.from(new Uint8Array(sigArray)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    // Send to API
+    const res = await fetch(WAITLIST_API, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ wallet:connectedWallet, signature:sigHex, message:message })
+    });
+    const data = await res.json();
+    if(data.success){
+      document.getElementById('your-spot').textContent=data.spot;
+      document.getElementById('claimed-address').textContent=connectedWallet;
+      switchWalletState('claimed');
+      // Celebration
+      peachRain();
+      loadWaitlistData();
+    } else {
+      showWalletError(data.error || 'Failed to claim spot');
+      if(data.spot){
+        document.getElementById('your-spot').textContent=data.spot;
+        document.getElementById('claimed-address').textContent=connectedWallet;
+        switchWalletState('claimed');
+      }
+    }
+  } catch(e){
+    showWalletError('Signing cancelled or failed. Try again.');
+  }
+}
+
+// Load waitlist on page load
+loadWaitlistData();
 </script>
 </body>
 </html>
