@@ -196,7 +196,87 @@
   ::-webkit-scrollbar { width:12px; }
   ::-webkit-scrollbar-track { background:#0a0010; }
   ::-webkit-scrollbar-thumb { background:#c2185b; border:2px solid #880040; }
-  @media(max-width:600px){ .welcome-grid{grid-template-columns:1fr;} .banner-title{font-size:52px;} }
+  /* ===== MOBILE RESPONSIVE ===== */
+  @media(max-width:600px){
+    .desktop { padding:34px 6px 18px; gap:8px; }
+    /* Banner */
+    .banner { flex-direction:column; text-align:center; padding:14px 12px 12px; max-width:100%; }
+    .banner-foundation { font-size:8px; letter-spacing:2px; }
+    .banner-title { font-size:48px; letter-spacing:3px; }
+    .banner-sub { font-size:10px; letter-spacing:2px; }
+    .banner-right { text-align:center; margin-top:8px; }
+    .banner-peach { font-size:40px; }
+    .banner-tag { font-size:8px; }
+    /* Ticker */
+    .ticker-wrap { max-width:100%; height:24px; }
+    .ticker-inner span { font-size:11px; padding:4px 0; }
+    /* Windows */
+    .win95 { max-width:100%; }
+    .win95-body { padding:8px 10px 10px; }
+    .win95-title { font-size:11px; padding:3px 4px; }
+    /* Welcome grid */
+    .welcome-grid { grid-template-columns:1fr; gap:10px; }
+    .icon-box { flex-direction:row; padding:8px; }
+    .icon-big { font-size:40px; }
+    .logo-text { font-size:52px; letter-spacing:2px; }
+    .logo-sub { font-size:10px; }
+    /* Text */
+    .term-text { font-size:12px; line-height:1.7; }
+    .lh-body { font-size:12px; }
+    .lh-title { font-size:10px; }
+    /* Steps */
+    .step-block { padding:10px; }
+    .step-num { font-size:26px; }
+    .step-title { font-size:12px; }
+    .step-body { font-size:11px; }
+    .code-block { font-size:10px; padding:8px 10px; word-break:break-all; }
+    /* Agent feed */
+    #agent-feed { height:140px; font-size:10px; padding:6px 8px; }
+    /* Sensitivity meter */
+    .sens-label { min-width:70px; font-size:11px; }
+    .sens-val { min-width:50px; font-size:11px; }
+    /* Mint section */
+    #mint-peach { font-size:52px; }
+    .prog-outer { height:18px; }
+    /* Tokenomics */
+    .tok-table { font-size:10px; }
+    .tok-table th, .tok-table td { padding:5px 4px; }
+    .stat-grid { grid-template-columns:1fr 1fr; gap:6px; }
+    .stat-num { font-size:22px; }
+    .stat-label { font-size:9px; }
+    /* Whitepaper */
+    .doc-header { font-size:9px; }
+    .doc-body { font-size:11px; line-height:1.7; }
+    .doc-sig { font-size:9px; }
+    /* Hall of Fame */
+    .tribute-text { font-size:12px; }
+    /* FAQ */
+    .faq-q { font-size:12px; }
+    .faq-a { font-size:11px; padding-left:20px; }
+    /* Footer */
+    .footer-note { font-size:9px; padding:12px 8px; }
+    /* Modal */
+    .modal-win95 { width:95vw; }
+    .modal-icon { font-size:44px; }
+    .modal-headline { font-size:22px; }
+    .modal-official { font-size:11px; padding:8px; }
+    /* Taskbar */
+    .taskbar-btn { display:none; }
+    .pa-badge { font-size:6px; padding:4px 6px; left:8px; bottom:8px; }
+    .pa-badge .pa-top { font-size:7px; }
+    .pa-badge .pa-bot { font-size:5px; }
+    /* Buttons */
+    .win95-btn { font-size:11px; padding:8px 10px; }
+    /* Tip popup */
+    #tip-popup { bottom:8px; right:8px; left:8px; max-width:none; }
+  }
+  @media(max-width:380px){
+    .banner-title { font-size:38px; }
+    .logo-text { font-size:42px; }
+    #mint-peach { font-size:44px; }
+    .stat-grid { grid-template-columns:1fr; }
+    .tok-table { font-size:9px; }
+  }
 </style>
 </head>
 <body>
