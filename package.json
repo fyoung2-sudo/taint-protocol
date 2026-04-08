@@ -1,0 +1,8 @@
+{
+  "name": "taint-protocol",
+  "version": "1.0.0",
+  "description": "T.A.I.N.T. Protocol — AI Agent Mining on Solana",
+  "dependencies": {
+    "@vercel/kv": "^2.0.0"
+  }
+}
